@@ -1,9 +1,16 @@
 #include <verilated.h>
 #include "VRSA_tb.h" // Generated header for the Testbench module
 
-#if VM_TRACE_VCD
+// #define DUMPVCD 1 // remember to change make file to --trace
+#define DUMPFST 1
+
+#if defined(DUMPVCD) || defined(DUMPFST)
+#define DUMP_ENABLED 1
+#endif
+
+#if DUMPVCD
 #include <verilated_vcd_c.h> // For VCD waveform tracing
-#elif VM_TRACE_FST
+#elif DUMPFST
 #include <verilated_fst_c.h> // For FST waveform tracing
 #endif
 
@@ -18,13 +25,13 @@ int main(int argc, char **argv) {
     tb->clk = 0;
     tb->rst_n = 0;
 
-#if VM_TRACE_VCD || VM_TRACE_FST
+#if DUMP_ENABLED
     Verilated::traceEverOn(true);
-#if VM_TRACE_VCD
+#if DUMPVCD
     VerilatedVcdC* tfp = new VerilatedVcdC;
     tb->trace(tfp, 99);
     tfp->open("dump.vcd");
-#elif VM_TRACE_FST
+#elif DUMPFST
     VerilatedFstC* tfp = new VerilatedFstC;
     tb->trace(tfp, 99);
     tfp->open("dump.fst");
@@ -35,24 +42,24 @@ int main(int argc, char **argv) {
     while (sim_time < 20) {
         tb->clk = !tb->clk;
         tb->eval();
-#if VM_TRACE_VCD || VM_TRACE_FST
+#if DUMP_ENABLED
         if (tfp) tfp->dump(sim_time);
 #endif
         sim_time++;
     }
     tb->rst_n = 1;
 
-    // Drive the module for 1000 cycles
-    for (int i = 0; i < 1000; i++) {
+    // magic number, RSA256 takes 132368 cycles to complete
+    for (int i = 0; i < 150000; i++) {
         tb->clk = !tb->clk;
         tb->eval();
-#if VM_TRACE_VCD || VM_TRACE_FST
+#if DUMP_ENABLED
         if (tfp) tfp->dump(sim_time);
 #endif
         sim_time++;
     }
 
-#if VM_TRACE_VCD || VM_TRACE_FST
+#if DUMP_ENABLED
     // Close trace file
     if (tfp) {
         tfp->close();
