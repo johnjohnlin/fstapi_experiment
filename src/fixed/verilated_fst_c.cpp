@@ -31,11 +31,7 @@
 #define FST_WRITER_PARALLEL
 #define LZ4_DISABLE_DEPRECATE_WARNINGS
 
-// Include the GTKWave implementation directly
-#define FST_CONFIG_INCLUDE "fst_config.h"
-#include "gtkwave/fastlz.c"
-#include "gtkwave/fstapi.c"
-#include "gtkwave/lz4.c"
+#include "gtkwave/fstapi.h"
 
 #include <algorithm>
 #include <iterator>

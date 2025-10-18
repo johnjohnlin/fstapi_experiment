@@ -5,7 +5,8 @@ An experiment to rewrite `fstapi.c` for better Verilator simulation speed.
 # Project structure
 Everything is under `src/`
 
-* `fstapi/`: The main focus of this repo.
+* `fstapi/fstcpp`: The main focus of this repo.
+* `fstapi/gtkwave`: Original fstapi C implementation from GtkWave.
 * `fixed/`: Verilator generated files and Verilator libraries (copied from 5.036)
 * `original/`: The human written code for genernating the verilated cpp files, and testbench.
 
@@ -18,15 +19,19 @@ I have snapshot the Verilator output, and you just need to follow the standard c
 cmake -B build src -DCMAKE_BUILD_TYPE=Release
 cd build
 make -j $(nproc)
-time ./fixed_source 1 # FST version
-time ./fixed_source # no FST version
+./fixed_source 1 # FST version
+xxxx us # Program output
+./fixed_source # no FST version
+xxxx us # Program output
 ```
 
 # Profiling results
 
-CPU: Ryzen 3700X
+CPU: Ryzen 3700X, release mode, cell is the runtime (ms).
 
-| Mode   | Runtime (s) |
-|--------|-------------|
-| FST    | 1.17        |
-| No FST | 0.17        |
+| Mode        | Benchmark 1 |
+|:------------|------------:|
+| GtkWave FST |       213.3 |
+| This FST    |        TODO |
+| Dummy FST   |        37.3 |
+| No FST      |        11.8 |

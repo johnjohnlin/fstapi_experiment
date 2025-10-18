@@ -1,8 +1,16 @@
+#include <chrono>
+#include <iostream>
 #include <verilated.h>
 #include <verilated_fst_c.h> // For FST waveform tracing
 #include "VRSA_tb.h" // Generated header for the Testbench module
 
+using namespace std;
+using namespace std::chrono;
+
 int main(int argc, char **argv) {
+
+    auto tic = high_resolution_clock::now();
+
     bool dump_fst = false;
     if (argc > 1 and argv[argc-1][0] == '1') {
         dump_fst = true;
@@ -52,5 +60,9 @@ int main(int argc, char **argv) {
     // Cleanup and exit
     tb->final();
     delete tb;
+
+    auto toc = high_resolution_clock::now();
+
+    cout << duration_cast<microseconds>(toc-tic).count() << "us" << endl;
     return 0;
 }
