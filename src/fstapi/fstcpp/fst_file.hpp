@@ -32,8 +32,8 @@ struct HeaderInfo {
 		static constexpr unsigned real_endianness = 8;
 		static constexpr unsigned writer_memory_use = 8;
 		static constexpr unsigned num_scopes = 8;
-		static constexpr unsigned num_hiearchy_vars = 8;
 		static constexpr unsigned num_vars = 8;
+		static constexpr unsigned num_handles = 8;
 		static constexpr unsigned num_wave_data_blocks = 8;
 		static constexpr unsigned timescale = 1;
 		static constexpr unsigned writer = 128;
@@ -48,9 +48,9 @@ struct HeaderInfo {
 		static constexpr unsigned real_endianness = end_time + Size::real_endianness;
 		static constexpr unsigned writer_memory_use = real_endianness + Size::writer_memory_use;
 		static constexpr unsigned num_scopes = writer_memory_use + Size::num_scopes;
-		static constexpr unsigned num_hiearchy_vars = num_scopes + Size::num_hiearchy_vars;
-		static constexpr unsigned num_vars = num_hiearchy_vars + Size::num_hiearchy_vars;
-		static constexpr unsigned num_wave_data_blocks = num_vars + Size::num_vars;
+		static constexpr unsigned num_vars = num_scopes + Size::num_vars;
+		static constexpr unsigned num_handles = num_vars + Size::num_vars;
+		static constexpr unsigned num_wave_data_blocks = num_handles + Size::num_handles;
 		static constexpr unsigned timescale = num_wave_data_blocks + Size::num_wave_data_blocks;
 		static constexpr unsigned writer = timescale + Size::timescale;
 		static constexpr unsigned date = writer + Size::writer;

@@ -42,10 +42,20 @@ struct StreamWriteHelper {
 		return *this;
 	}
 
-	StreamWriteHelper& WriteBlockHeader(fst::BlockType block_type, uint64_t block_length) {
-		return this
-		->WriteUInt(static_cast<uint8_t>(block_type))
-		.WriteUInt(block_length + 8); // The 8 is required by FST, which is the size of this uint64_t
+	StreamWriteHelper& WriteLEB128(uint64_t v) {
+		// Just reuse the logic from fstapi.c, is there a better way?
+		uint64_t nxt;
+		unsigned char buf[10]; /* ceil(64/7) = 10 */
+		unsigned char *pnt = buf;
+		int len;
+		while ((nxt = v >> 7)) {
+			*(pnt++) = ((unsigned char)v) | 0x80;
+			v = nxt;
+		}
+		*(pnt++) = (unsigned char)v;
+		len = pnt - buf;
+		os->write(reinterpret_cast<const char*>(buf), len);
+		return *this;
 	}
 
 	template<typename F>
@@ -55,7 +65,22 @@ struct StreamWriteHelper {
 		return *this;
 	}
 
-	StreamWriteHelper& Write(char* ptr, size_t size) {
+	StreamWriteHelper& WriteBlockHeader(fst::BlockType block_type, uint64_t block_length) {
+		return this
+		->WriteUInt(static_cast<uint8_t>(block_type))
+		.WriteUInt(block_length + 8); // The 8 is required by FST, which is the size of this uint64_t
+	}
+
+	StreamWriteHelper& WriteString(const std::string_view str) {
+		os
+		->write(str.data(), str.size())
+		.put('\0');
+		return *this;
+	}
+	StreamWriteHelper& WriteString(const std::string& str) { return WriteString(std::string_view(str)); }
+	StreamWriteHelper& WriteString(const char* str) { return WriteString(std::string_view(str)); }
+
+	StreamWriteHelper& Write(const char* ptr, size_t size) {
 		os->write(ptr, size);
 		return *this;
 	}
