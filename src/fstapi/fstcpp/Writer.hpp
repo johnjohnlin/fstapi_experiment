@@ -8,6 +8,7 @@
 #include <cstring>
 #include <ctime>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -17,6 +18,40 @@
 #include "fstcpp/assertion.h"
 
 namespace fst {
+
+class Writer;
+
+namespace detail {
+
+// We define WriterWaveData here for better code inlining, no forward declaration
+struct BlackoutData {
+	std::ostringstream buffer;
+	uint64_t previous_timestamp = 0;
+	uint64_t count = 0;
+
+	void EmitDumpActive(uint64_t current_timestamp, bool enable);
+};
+
+// We define WriterWaveData here for better code inlining, no forward declaration
+struct WriterWaveData {
+	std::ostringstream timestamp_data;
+	uint64_t first_timestamp;
+	uint64_t current_timestamp;
+	uint64_t timestamp_index;
+	uint64_t memory_usage;
+
+	bool IsResetState() { return timestamp_index != uint64_t(-1); }
+	void Reset() {
+		first_timestamp = uint64_t(-1);
+		timestamp_index = uint64_t(-1);
+		current_timestamp = 0;
+		timestamp_data.str("");
+	}
+	void AppendTimestamp(uint64_t ts);
+	WriterWaveData() { Reset(); }
+};
+
+} // namespace detail
 
 class Writer {
 public:
@@ -91,19 +126,36 @@ public:
 		Hierarchy::SupplementalVarType svt, Hierarchy::SupplementalDataType sdt
 	) { return CreateVar2(vartype, vardir, len, std::string_view(name), alias_handle, std::string_view(type), svt, sdt); }
 
+	// Waveform API
+	void EmitTimeChange(uint64_t tim);
+	void EmitDumpActive(bool enable);
+	void EmitValueChange(Handle handle, uint32_t bits, const uint32_t *val);
+	void EmitValueChange(Handle handle, uint32_t bits, const uint64_t *val);
 private:
-	// file/memory buffers
+	// File/memory buffers
+	// 1. For hierarchy and geometry, we do not keep the data structure, instead we just
+	//    serialize them into buffers, and compress+write them at the end of file.
+	// 2. For header, we keep the data structure in memory since it is quite small
+	// 3. For wave data, we keep a complicated data structure in memory, and flush them to file when necessary
 	std::ofstream main_fst_file_;
 	std::ostringstream hierarchy_buffer_;
 	std::ostringstream geometry_buffer_;
-
-	// Header
 	Header header_{};
+	detail::BlackoutData blackout_data_;
+	detail::WriterWaveData wave_data_;
+	bool hierearchy_finalized_ = false;
 
 	// internal helpers
 	void WriteHeader_(); // Always write header at the beginning of stream
 	void AppendGeometry_(); // Always append hierarchy at the end of stream
 	void AppendHierarchy_(); // Always append hierarchy at the end of stream
+	void AppendBlackout_(); // Always append hierarchy at the end of stream
+	void FlushWaveData_InitialBits_();
+	void FlushWaveData_ValudChanges_();
+	void FlushWaveData_Positinos_();
+	void FlushWaveData_Timestamps_();
+	void FlushWaveData_(bool force_flush); // Flush to main_fst_file_ directly (offseted by Header, whose space is reserved in constructor)
+	void FinalizeHierarchy_();
 };
 
 } // namespace fst

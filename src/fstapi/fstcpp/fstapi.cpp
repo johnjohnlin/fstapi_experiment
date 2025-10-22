@@ -209,11 +209,17 @@ void fstWriterSetAttrBegin(
 	(void)ctx; (void)attrtype; (void)subtype; (void)attrname; (void)arg; TODO(__func__);
 }
 
-void fstWriterSetAttrEnd(fstWriterContext *ctx) { (void)ctx; TODO(__func__); }
+void fstWriterSetAttrEnd(fstWriterContext *ctx) {
+	(void)ctx; TODO(__func__);
+}
 
-void fstWriterSetComment(fstWriterContext *ctx, const char *comm) { (void)ctx; (void)comm; TODO(__func__); }
+void fstWriterSetComment(fstWriterContext *ctx, const char *comm) {
+	(void)ctx; (void)comm; TODO(__func__);
+}
 
-void fstWriterSetEnvVar(fstWriterContext *ctx, const char *envvar) { (void)ctx; (void)envvar; TODO(__func__); }
+void fstWriterSetEnvVar(fstWriterContext *ctx, const char *envvar) {
+	(void)ctx; (void)envvar; TODO(__func__);
+}
 
 void fstWriterSetSourceInstantiationStem(
 	fstWriterContext *ctx,
@@ -233,12 +239,20 @@ void fstWriterSetSourceStem(
 	(void)ctx; (void)path; (void)line; (void)use_realpath; TODO(__func__);
 }
 
-void fstWriterEmitEnumTableRef(fstWriterContext *ctx, fstEnumHandle handle) { (void)ctx; (void)handle; TODO(__func__); }
+void fstWriterEmitEnumTableRef(fstWriterContext *ctx, fstEnumHandle handle) {
+	(void)ctx; (void)handle; TODO(__func__);
+}
 
 // Waveform related
-void fstWriterEmitDumpActive(fstWriterContext *ctx, int enable) { (void)ctx; (void)enable; TODO(__func__); }
+void fstWriterEmitTimeChange(fstWriterContext *ctx, uint64_t tim) {
+	if (not ctx) return;
+	ctx->writer.EmitTimeChange(tim);
+}
 
-void fstWriterEmitValueChange(fstWriterContext *ctx, fstHandle handle, const void *val) { (void)ctx; (void)handle; (void)val; TODO(__func__); }
+void fstWriterEmitDumpActive(fstWriterContext *ctx, int enable) {
+	if (not ctx) return;
+	ctx->writer.EmitDumpActive(enable != 0);
+}
 
 void fstWriterEmitValueChange32(
 	fstWriterContext *ctx,
@@ -246,7 +260,8 @@ void fstWriterEmitValueChange32(
 	uint32_t bits,
 	uint32_t val
 ) {
-	(void)ctx; (void)handle; (void)bits; (void)val; TODO(__func__);
+	if (not ctx) return;
+	ctx->writer.EmitValueChange(handle, bits, &val);
 }
 
 void fstWriterEmitValueChange64(
@@ -255,7 +270,8 @@ void fstWriterEmitValueChange64(
 	uint32_t bits,
 	uint64_t val
 ) {
-	(void)ctx; (void)handle; (void)bits; (void)val; TODO(__func__);
+	if (not ctx) return;
+	ctx->writer.EmitValueChange(handle, bits, &val);
 }
 
 void fstWriterEmitValueChangeVec32(
@@ -264,7 +280,8 @@ void fstWriterEmitValueChangeVec32(
 	uint32_t bits,
 	const uint32_t *val
 ) {
-	(void)ctx; (void)handle; (void)bits; (void)val; TODO(__func__);
+	if (not ctx) return;
+	ctx->writer.EmitValueChange(handle, bits, val);
 }
 
 void fstWriterEmitValueChangeVec64(
@@ -273,7 +290,16 @@ void fstWriterEmitValueChangeVec64(
 	uint32_t bits,
 	const uint64_t *val
 ) {
-	(void)ctx; (void)handle; (void)bits; (void)val; TODO(__func__);
+	if (not ctx) return;
+	ctx->writer.EmitValueChange(handle, bits, val);
+}
+
+void fstWriterEmitValueChange(
+	fstWriterContext *ctx,
+	fstHandle handle,
+	const void *val
+) {
+	(void)ctx; (void)handle; (void)val; TODO(__func__);
 }
 
 void fstWriterEmitVariableLengthValueChange(
@@ -284,8 +310,6 @@ void fstWriterEmitVariableLengthValueChange(
 ) {
 	(void)ctx; (void)handle; (void)val; (void)len; TODO(__func__);
 }
-
-void fstWriterEmitTimeChange(fstWriterContext *ctx, uint64_t tim) { (void)ctx; (void)tim; TODO(__func__); }
 
 // Misc (Ignored API calls, raise warnings if used)
 int fstWriterGetFlushContextPending(fstWriterContext*) { NotImplementedWarning(__func__); return 0; }

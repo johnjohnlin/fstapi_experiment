@@ -25,6 +25,10 @@ xxxx us # Program output
 xxxx us # Program output
 ```
 
+# Reference
+
+Please refer to the [unofficial document](https://blog.timhutt.co.uk/fst_spec/).
+
 # Profiling results
 
 CPU: Ryzen 3700X, release mode, cell is the runtime (ms).

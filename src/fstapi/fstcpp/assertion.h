@@ -9,7 +9,7 @@
 // Your project's .h files.
 
 #define CHECK(a) \
-	if (!(a)) { \
+	if (!(a)) [[unlikely]] { \
 		std::ostringstream oss; \
 		oss << "CHECK failed: " #a; \
 		const auto e = oss.str(); \
@@ -18,7 +18,7 @@
 	}
 
 #define CHECK_EQ(a, b) \
-	if ((a) != (b)) { \
+	if ((a) != (b)) [[unlikely]] { \
 		std::ostringstream oss; \
 		oss << "CHECK_EQ failed: " #a " != " #b << " (" << (a) << " vs. " << (b) << ")"; \
 		const auto e = oss.str(); \
@@ -27,7 +27,7 @@
 	}
 
 #define CHECK_GT(a, b) \
-	if ((a) <= (b)) { \
+	if ((a) <= (b)) [[unlikely]] { \
 		std::ostringstream oss; \
 		oss << "CHECK_GT failed: " #a " <= " #b << " (" << (a) << " vs. " << (b) << ")"; \
 		const auto e = oss.str(); \
